@@ -1,4 +1,14 @@
-# auth.py (only login_screen function updated)
+# Author: Linpeng Mao
+# Date: 04/03/2025
+# Description:
+#   Handles user authentication logic for the Fitness Tracker app.
+#   Provides GUI for login and registration, verifies user credentials,
+#   and stores user data securely in users.csv (with hashed passwords).
+#
+# Functions:
+#   - login_screen(root): Displays login and registration UI
+#   - register_user(username, password): Registers new users
+#   - validate_user(username, password): Validates login credentials
 
 import tkinter as tk
 from tkinter import messagebox
