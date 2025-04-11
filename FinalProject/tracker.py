@@ -1,15 +1,15 @@
-# tracker.py - only tracker_screen updated
+# tracker.py
 
 import tkinter as tk
 from tkinter import messagebox
 import os
 import csv
 from datetime import datetime, timedelta
-# from nutrition_ui import nutrition_screen
-# from exercise_ui import exercise_screen
-# from visualize import show_weekly_plot
 
-# from utils.helpers import today_str, get_user_data_path, ensure_data_file
+from nutrition_ui import nutrition_screen
+from exercise_ui import exercise_screen
+from visualize import show_weekly_plot
+from utils.helpers import today_str, get_user_data_path, ensure_data_file
 
 def tracker_screen(root, username):
     for widget in root.winfo_children():
@@ -57,7 +57,48 @@ def tracker_screen(root, username):
     tk.Button(frame, text="Save Data", font=("Helvetica", 11), bg="#4CAF50", fg="white", width=15, command=save).grid(row=4, column=0, pady=15)
     tk.Button(frame, text="View Summary", font=("Helvetica", 11), bg="#607D8B", fg="white", width=15, command=show_summary).grid(row=4, column=1, pady=15)
 
-    # tk.Button(frame, text="Nutrition Log", font=("Helvetica", 11), bg="#2196F3", fg="white", width=15, command=lambda: nutrition_screen(root, username)).grid(row=5, column=0, pady=5)
-    # tk.Button(frame, text="Exercise Log", font=("Helvetica", 11), bg="#FF9800", fg="white", width=15, command=lambda: exercise_screen(root, username)).grid(row=5, column=1, pady=5)
+    tk.Button(frame, text="Nutrition Log", font=("Helvetica", 11), bg="#2196F3", fg="white", width=15, command=lambda: nutrition_screen(root, username)).grid(row=5, column=0, pady=5)
+    tk.Button(frame, text="Exercise Log", font=("Helvetica", 11), bg="#FF9800", fg="white", width=15, command=lambda: exercise_screen(root, username)).grid(row=5, column=1, pady=5)
 
-    # tk.Button(frame, text="Weekly Chart", font=("Helvetica", 11), bg="#9C27B0", fg="white", width=32, command=lambda: show_weekly_plot(username)).grid(row=6, column=0, columnspan=2, pady=15)
+    tk.Button(frame, text="Weekly Chart", font=("Helvetica", 11), bg="#9C27B0", fg="white", width=32, command=lambda: show_weekly_plot(username)).grid(row=6, column=0, columnspan=2, pady=15)
+
+def save_entry(username, in_cal, out_cal, goal):
+    """Append today's entry or replace if it already exists"""
+    ensure_data_file(username)
+    path = get_user_data_path(username)
+    today = today_str()
+
+    rows = []
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+    header = rows[0] if rows else ["date", "in_cal", "out_cal", "goal"]
+    data = rows[1:] if len(rows) > 1 else []
+
+    data = [row for row in data if row[0] != today]
+    data.append([today, in_cal, out_cal, goal])
+
+    with open(path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(data)
+
+def summarize_today(username):
+    """Return today's record if exists"""
+    path = get_user_data_path(username)
+    if not os.path.exists(path):
+        return None
+
+    today = today_str()
+    with open(path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["date"] == today:
+                return {
+                    "in_cal": int(row["in_cal"]),
+                    "out_cal": int(row["out_cal"]),
+                    "goal": int(row["goal"]),
+                }
+    return None
