@@ -1,4 +1,15 @@
-# tracker.py
+# Author:Linpeng Mao
+# Date: 04/03/2025
+# Description:
+#   Main tracking module for the Fitness Tracker app.
+#   Displays post-login interface for logging calorie intake, calorie burn,
+#   and daily fitness goals. Also supports data saving, viewing summaries,
+#   and navigation to nutrition and exercise logs.
+#
+# Functions:
+#   - tracker_screen(root, username): Main user dashboard
+#   - save_entry(username, in_cal, out_cal, goal): Stores today's fitness data
+#   - summarize_today(username): Retrieves today’s entry from user log
 
 import tkinter as tk
 from tkinter import messagebox
