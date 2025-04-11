@@ -1,6 +1,8 @@
-# Author: Haoji Zang, Linpeng Mao, Ruikang Li
+# Author: Linpeng Mao
 # Date: 04/03/2025
-# Description:
+# Description: Entry point of the Fitness Tracker application.
+#              Initializes the main Tkinter window, ensures required directories,
+#              and launches the login interface provided by auth.py.
 
 # main.py
 
