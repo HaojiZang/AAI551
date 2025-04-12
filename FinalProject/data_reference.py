@@ -1,8 +1,9 @@
-# Author: Ruikang Li
+# Author: Ruikang Li, Haoji Zang
 # Date: 04/08/2025
 # Description: This module handles loading reference data for exercises and nutrition.
 
 import os
+import csv
 import pandas as pd
 
 def load_exercise_reference():
@@ -44,10 +45,26 @@ def load_exercise_reference():
 
 def load_food_reference():
     """
-    Load the food reference data from CSV file.
-    
-    :return: A dictionary mapping food names to nutrition information
-    :rtype: dict
+    Load food calorie reference table and return a dictionary mapping.
     """
-    # TODO (Haoji Zang)
-    return {}
+    food_map = {}
+    if not os.path.isfile(FOOD_FILE):
+        print(f"Food reference file not found: {FOOD_FILE}")
+        return food_map
+
+    try:
+        with open(FOOD_FILE, mode='r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                name = row.get("Food", "").strip()
+                cal_str = row.get("Calories_per_100g", "").strip()
+                if name and cal_str:
+                    try:
+                        calories = float(cal_str)
+                        food_map[name.title()] = calories  # Normalize key
+                    except ValueError:
+                        print(f"[!] Cannot convert to float: {cal_str} (Food: {name})")
+        return food_map
+    except Exception as e:
+        print(f"Failed to load food reference table: {e}")
+        return food_map
