@@ -1,9 +1,10 @@
 # Author: Ruikang Li
-# Date: 04/03/2025
+# Date: 04/11/2025
 # Description: This module provides the user interface for exercise tracking in the fitness tracker application.
 
 import os
 import csv
+import time
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
@@ -13,6 +14,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from exercise import add_exercise_entry, lookup_exercise_calories
 from utils.helpers import today_str, get_exercise_data_path
+
+_cached_activities = None
 
 def exercise_screen(root, username):
     """
@@ -27,8 +30,8 @@ def exercise_screen(root, username):
     """
     exercise_window = tk.Toplevel(root)
     exercise_window.title(f"Exercise Tracker - {username}")
-    exercise_window.geometry("600x500")
-    exercise_window.resizable(False, False)
+    exercise_window.geometry("600x600")
+    exercise_window.resizable(True, True)
     
     form_frame = ttk.LabelFrame(exercise_window, text="Log Exercise")
     form_frame.pack(padx=10, pady=10, fill="x")
@@ -43,7 +46,13 @@ def exercise_screen(root, username):
     
     ttk.Label(form_frame, text="Duration (minutes):").grid(row=1, column=0, padx=5, pady=5, sticky="w")
     duration_var = tk.StringVar()
-    ttk.Entry(form_frame, textvariable=duration_var, width=10).grid(row=1, column=1, padx=5, pady=5, sticky="w")
+    duration_entry = ttk.Entry(form_frame, textvariable=duration_var, width=10)
+    duration_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+    
+    ttk.Label(form_frame, text="Calories Burned:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
+    calories_var = tk.StringVar()
+    calories_entry = ttk.Entry(form_frame, textvariable=calories_var, width=10, state="readonly")
+    calories_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
     
     def calculate_calories():
         """
@@ -51,6 +60,8 @@ def exercise_screen(root, username):
         
         :return: None
         """
+        start_time = time.time()
+        
         activity = activity_var.get()
         duration = duration_var.get()
         
@@ -64,19 +75,19 @@ def exercise_screen(root, username):
                 messagebox.showerror("Error", "Duration must be positive")
                 return
             
-            # Look up calories from reference data
             calories = lookup_exercise_calories(activity, duration)
             calories_var.set(f"{calories:.1f}")
             
+            save_btn.focus_set()
+            
         except ValueError:
             messagebox.showerror("Error", "Duration must be a number")
+        
+        end_time = time.time()
+        print(f"calculate_calories took {end_time - start_time:.4f} seconds")
     
     calculate_btn = ttk.Button(form_frame, text="Calculate Calories", command=calculate_calories)
     calculate_btn.grid(row=1, column=2, padx=5, pady=5)
-    
-    ttk.Label(form_frame, text="Calories Burned:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
-    calories_var = tk.StringVar()
-    ttk.Entry(form_frame, textvariable=calories_var, width=10, state="readonly").grid(row=2, column=1, padx=5, pady=5, sticky="w")
     
     def save_exercise():
         """
@@ -84,6 +95,8 @@ def exercise_screen(root, username):
         
         :return: None
         """
+        start_time = time.time()
+        
         activity = activity_var.get()
         duration = duration_var.get()
         calories = calories_var.get()
@@ -92,19 +105,20 @@ def exercise_screen(root, username):
             messagebox.showerror("Error", "Please complete all fields")
             return
         
-        # Save the exercise entry
         success = add_exercise_entry(username, activity, duration, calories)
         
         if success:
             messagebox.showinfo("Success", "Exercise logged successfully")
-            # Clear the form
             activity_var.set("")
             duration_var.set("")
             calories_var.set("")
-            # Refresh the exercise history
             show_exercise_history(history_frame, username)
+            activity_dropdown.focus_set()
         else:
             messagebox.showerror("Error", "Failed to log exercise")
+        
+        end_time = time.time()
+        print(f"save_exercise took {end_time - start_time:.4f} seconds to execute")
     
     save_btn = ttk.Button(form_frame, text="Save Exercise", command=save_exercise)
     save_btn.grid(row=3, column=1, padx=5, pady=10)
@@ -114,25 +128,61 @@ def exercise_screen(root, username):
     
     show_exercise_history(history_frame, username)
     
+    status_var = tk.StringVar()
+    status_label = ttk.Label(exercise_window, textvariable=status_var, anchor="w")
+    status_label.pack(side="bottom", fill="x", padx=10, pady=5)
+    
+    button_frame = ttk.Frame(exercise_window)
+    button_frame.pack(side="bottom", fill="x", padx=10, pady=10)
+    
     def show_visualization():
         """
-        Show the exercise visualization.
+        Show the exercise visualization with improved feedback.
         
         :return: None
         """
+        start_time = time.time()
+        
+        status_var.set("Loading visualization...")
+        exercise_window.update_idletasks()
+        
         try:
-            # Import here to avoid circular imports
             from visualize import show_exercise_plot
             show_exercise_plot(username)
+            status_var.set("")
         except Exception as e:
             messagebox.showerror("Error", f"Could not display visualization: {e}")
+            status_var.set("")
+        
+        end_time = time.time()
+        print(f"show_visualization took {end_time - start_time:.4f} seconds")
     
-    viz_btn = ttk.Button(exercise_window, text="Show Exercise Trends", command=show_visualization)
-    viz_btn.pack(padx=10, pady=10)
+    try:
+        viz_btn = ttk.Button(button_frame, text="Show Exercise Trends", command=show_visualization)
+        viz_btn.pack(side="left", padx=10, pady=10)
+        print("Visualization button created successfully")
+    except Exception as e:
+        print(f"Error creating visualization button: {e}")
     
-    # Close button
-    close_btn = ttk.Button(exercise_window, text="Close", command=exercise_window.destroy)
-    close_btn.pack(padx=10, pady=10)
+    close_btn = ttk.Button(button_frame, text="Close", command=exercise_window.destroy)
+    close_btn.pack(side="right", padx=10, pady=10)
+    
+    activity_dropdown.focus_set()
+    
+    activity_dropdown.bind("<Return>", lambda e: duration_entry.focus_set())
+    duration_entry.bind("<Return>", lambda e: calculate_btn.invoke())
+    calculate_btn.bind("<Return>", lambda e: save_btn.focus_set())
+    save_btn.bind("<Return>", lambda e: save_btn.invoke())
+    
+    def select_all(event):
+        event.widget.select_range(0, 'end')
+        return "break"
+    
+    duration_entry.bind("<FocusIn>", select_all)
+    
+    print("Widgets in exercise window:")
+    for widget in exercise_window.winfo_children():
+        print(f"Widget: {widget}, Visible: {widget.winfo_viewable()}")
 
 def show_exercise_history(frame, username):
     """
@@ -184,7 +234,6 @@ def show_exercise_history(frame, username):
             print(f"Error loading exercise history: {e}")
             tree.insert("", "end", values=(f"Error: {e}", "", "", ""))
     else:
-        # File doesn't exist yet
         tree.insert("", "end", values=("No exercise logged today", "", "", ""))
 
 def load_exercise_options():
@@ -194,18 +243,26 @@ def load_exercise_options():
     :return: List of exercise activities
     :rtype: list
     """
+    global _cached_activities
+    
+    if _cached_activities is not None:
+        return _cached_activities
+    
     reference_file = "reference/exercise_dataset.csv"
     
     default_options = ["Walking", "Running", "Cycling", "Swimming", "Weightlifting", "Yoga", "HIIT", "Other"]
     
     if not os.path.isfile(reference_file):
+        _cached_activities = default_options
         return default_options
     
     try:
         df = pd.read_csv(reference_file)
-        activities = df.iloc[:, 0].tolist()  # First column contains activity names
-        return activities if activities else default_options
+        activities = df.iloc[:, 0].tolist()
+        _cached_activities = activities if activities else default_options
+        return _cached_activities
     
     except Exception as e:
         print(f"Error loading exercise options: {e}")
+        _cached_activities = default_options
         return default_options

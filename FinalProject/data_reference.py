@@ -12,9 +12,14 @@ def load_exercise_reference():
     :return: A dictionary mapping exercise names to calorie information
     :rtype: dict
     """
-    reference_file = "reference/exercise_dataset.csv"
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    reference_file = os.path.join(current_dir, "reference", "exercise_dataset.csv")
     
     if not os.path.isfile(reference_file):
+        reference_file = "reference/exercise_dataset.csv"
+    
+    if not os.path.isfile(reference_file):
+        print(f"Warning: Exercise reference file not found at {reference_file}")
         return {}
     
     try:
