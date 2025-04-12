@@ -30,5 +30,4 @@ def ensure_data_file(username):
             writer.writerow(["date", "in_cal", "out_cal", "goal"])
 
 def read_csv_as_dict(filename):
-    # 读取 csv 返回 dict 列表
     return []
