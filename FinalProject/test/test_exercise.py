@@ -6,7 +6,6 @@ import sys
 import tkinter as tk
 import pathlib
 
-# Add parent directory to path to allow imports from parent directory
 current_dir = pathlib.Path(__file__).parent.absolute()
 parent_dir = current_dir.parent
 sys.path.insert(0, str(parent_dir))
@@ -15,33 +14,34 @@ def test_exercise_module():
     print("\n--- Testing exercise.py module ---")
     
     try:
-        from exercise import lookup_exercise_calories, add_exercise_entry, summarize_daily_exercise
+        from exercise import ExerciseTracker
         
-        # Test lookup_exercise_calories
-        print("\nTesting lookup_exercise_calories function:")
+        tracker = ExerciseTracker()
+        
+        print("\nTesting lookup_exercise_calories method:")
         activities = ["Running, 5 mph (12 min/mile)", "Walking, 3 mph (20 min/mile)", "Cycling, moderate effort"]
         durations = [30, 45, 60]
         
         for activity in activities:
             for duration in durations:
-                calories = lookup_exercise_calories(activity, duration)
+                calories = tracker.lookup_exercise_calories(activity, duration)
                 print(f"  {activity} for {duration} mins: {calories:.1f} calories")
         
-        calories = lookup_exercise_calories("Dancing wildly", 30)
+        calories = tracker.lookup_exercise_calories("Dancing wildly", 30)
         print(f"  Dancing wildly for 30 mins: {calories:.1f} calories (should use fallback)")
         
-        # Test add_exercise_entry
-        print("\nTesting add_exercise_entry function:")
+        # Test add_exercise_entry method
+        print("\nTesting add_exercise_entry method:")
         test_user = "test_user"
         
         for activity, duration in zip(activities, durations):
-            calories = lookup_exercise_calories(activity, duration)
-            success = add_exercise_entry(test_user, activity, duration, calories)
+            calories = tracker.lookup_exercise_calories(activity, duration)
+            success = tracker.add_exercise_entry(test_user, activity, duration, calories)
             print(f"  Added '{activity}' for {duration} mins ({calories:.1f} cal): {'Success' if success else 'Failed'}")
         
-        # Test summarize_daily_exercise
-        print("\nTesting summarize_daily_exercise function:")
-        daily_total = summarize_daily_exercise(test_user)
+        # Test summarize_daily_exercise method
+        print("\nTesting summarize_daily_exercise method:")
+        daily_total = tracker.summarize_daily_exercise(test_user)
         print(f"  Total daily exercise calories: {daily_total:.1f}")
         
         return True
@@ -71,8 +71,8 @@ def test_exercise_ui():
         print("6. Try the 'Show Exercise Trends' button")
         print("7. Close the window when done testing")
         
-        from exercise_ui import exercise_screen
-        exercise_screen(root, "test_user")
+        from exercise_ui import ExerciseUI
+        ExerciseUI(root, "test_user")
         
         root.mainloop()
         return True
@@ -122,7 +122,6 @@ def test_data_reference():
         
         print(f"  Successfully loaded {len(exercise_data)} exercise activities")
         
-        # Print a few examples
         print("\nSample exercise data:")
         count = 0
         for activity, data in exercise_data.items():
