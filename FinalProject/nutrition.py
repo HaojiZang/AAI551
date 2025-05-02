@@ -1,6 +1,7 @@
 # Author: Haoji Zang
 # Date: 04/03/2025
-# Description:
+# Description: This module defines the NutritionTracker class for managing user nutrition data.
+
 
 import csv
 import os

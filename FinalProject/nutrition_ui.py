@@ -1,3 +1,7 @@
+# Author: Haoji Zang
+# Date: 04/03/2025
+# Description: Nutrition UI with total calorie display.
+
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import pandas as pd
