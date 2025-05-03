@@ -64,11 +64,30 @@ def tracker_screen(root, username):
         else:
             messagebox.showinfo("No Data", "No entry for today yet.")
 
+    # Add a new function to get the eaten calories
+    def open_nutrition():
+        in_str = in_entry.get()
+        if not in_str.strip():
+            messagebox.showerror("Error", "Please enter Calories In (eaten) before opening Nutrition Log.")
+            return
+        try:
+            in_cal = int(in_str)
+            nutrition_screen(root, username, in_cal)
+        except ValueError:
+            messagebox.showerror("Error", "Calories In must be a valid number.")
+
+    tk.Button(
+        frame, text="Nutrition Log",
+        font=("Helvetica", 11), bg="#2196F3", fg="white", width=15,
+        command=open_nutrition
+    ).grid(row=5, column=0, pady=5)
+
     # Buttons
     tk.Button(frame, text="Save Data", font=("Helvetica", 11), bg="#4CAF50", fg="white", width=15, command=save).grid(row=4, column=0, pady=15)
     tk.Button(frame, text="View Summary", font=("Helvetica", 11), bg="#607D8B", fg="white", width=15, command=show_summary).grid(row=4, column=1, pady=15)
 
-    tk.Button(frame, text="Nutrition Log", font=("Helvetica", 11), bg="#2196F3", fg="white", width=15, command=lambda: nutrition_screen(root, username)).grid(row=5, column=0, pady=5)
+    tk.Button(frame, text="Nutrition Log", font=("Helvetica", 11), bg="#2196F3", fg="white", width=15,
+              command=open_nutrition).grid(row=5, column=0, pady=5)
     tk.Button(frame, text="Exercise Log", font=("Helvetica", 11), bg="#FF9800", fg="white", width=15, command=lambda: exercise_screen(root, username)).grid(row=5, column=1, pady=5)
 
     tk.Button(frame, text="Weekly Chart", font=("Helvetica", 11), bg="#9C27B0", fg="white", width=32, command=lambda: show_weekly_plot(username)).grid(row=6, column=0, columnspan=2, pady=15)
