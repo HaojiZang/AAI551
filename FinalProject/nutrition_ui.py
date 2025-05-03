@@ -10,21 +10,26 @@ from datetime import datetime, timedelta
 from nutrition import NutritionTracker
 
 class NutritionUI:
-    def __init__(self, root, username):
+    def __init__(self, root, username, goal):
+        # Store username and calorie goal
         self.username = username
         self.tracker = NutritionTracker()
-        self.goal = 2000
+        self.goal = int(goal)
 
+        # Create top-level window
         self.root = tk.Toplevel(root)
         self.root.title("Nutrition Tracker")
         self.root.geometry("430x600")
 
+        # Load food list
         food_df = pd.read_csv("reference/Food and Calories.csv")
         self.food_list = food_df["Food"].tolist()
 
+        # Build UI and initialize
         self.build_ui()
         self.refresh_summary()
 
+    # Create input fields and buttons
     def build_ui(self):
         tk.Label(self.root, text="Enter food name:").pack()
         self.food_entry = tk.Entry(self.root)
@@ -51,6 +56,7 @@ class NutritionUI:
         tk.Button(self.root, text="Show Monthly Summary", command=self.show_month_summary).pack(pady=5)
         tk.Button(self.root, text="Show Yearly Summary", command=self.show_year_summary).pack(pady=5)
 
+    # Save a new nutrition entry
     def save_entry(self):
         try:
             food = self.food_entry.get()
@@ -71,6 +77,7 @@ class NutritionUI:
         except ValueError:
             messagebox.showerror("Error", "Please enter a valid food, date (YYYY-MM-DD), and positive weight.")
 
+    # Update total calorie display
     def refresh_summary(self):
         today = datetime.today().strftime('%Y-%m-%d')
         total = self.tracker.summarize_daily_nutrition(self.username, today)
@@ -78,11 +85,13 @@ class NutritionUI:
         self.total_label.config(text=f"Total calories today: {kcal} / Goal: {self.goal}")
         self.total_label.config(fg="red" if kcal > self.goal else "green")
 
+    # Clear today's nutrition entries
     def clear_today_data(self):
         self.tracker.clear_today_nutrition(self.username)
         messagebox.showinfo("Cleared", "Today's nutrition records have been cleared.")
         self.refresh_summary()
 
+    # Show all entries for today
     def export_today(self):
         entries = self.tracker.get_today_entries(self.username)
         if not entries:
@@ -93,6 +102,7 @@ class NutritionUI:
             text += f"{row['food']} - {row['grams']}g - {row['calories']} kcal\n"
         messagebox.showinfo("Today's Records", text)
 
+    # Display a list of available food items
     def show_food_list(self):
         win = tk.Toplevel(self.root)
         win.title("Available Food List")
@@ -105,6 +115,7 @@ class NutritionUI:
         listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=listbox.yview)
 
+    # Plot weekly calorie intake trend
     def show_trend(self):
         today = datetime.today()
         dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
@@ -120,6 +131,7 @@ class NutritionUI:
         plt.tight_layout()
         plt.show()
 
+    # Plot monthly calorie intake trend
     def show_month_summary(self):
         year = simpledialog.askstring("Input", "Enter year (e.g., 2025):", parent=self.root)
         month = simpledialog.askstring("Input", "Enter month (1-12):", parent=self.root)
@@ -145,6 +157,7 @@ class NutritionUI:
         plt.tight_layout()
         plt.show()
 
+    # Plot yearly calorie intake summary
     def show_year_summary(self):
         year = simpledialog.askstring("Input", "Enter year (e.g., 2025):", parent=self.root)
         try:
@@ -175,6 +188,6 @@ class NutritionUI:
         plt.tight_layout()
         plt.show()
 
-# Wrapper function (if needed by external modules)
-def nutrition_screen(root, username):
-    NutritionUI(root, username)
+# Screen
+def nutrition_screen(root, username, goal):
+    NutritionUI(root, username, goal)
