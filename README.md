@@ -1,34 +1,53 @@
-# Exercise Tracker Module
+# Fitness Tracker
 
-This module tracks exercises, calculates calories burned, and visualizes exercise trends.
+## Installation
 
-## Testing
+### Prerequisites
 
-Run the tests from the project root directory:
+- Python 3.12 or higher
+- Required packages:
+  - pandas
+  - matplotlib
+  - tkinter
+  - pytest
 
-```bash
-# Create sample data
-python test/create_sample_data.py
+### Setup
 
-# Run all tests
-python test/test_exercise.py all
+1. Clone the repository:
+git clone https://github.com/HaojiZang/AAI551.git
+cd FinalProject
 
-# Or run specific tests
-python test/test_exercise.py module  # Core functions
-python test/test_exercise.py ui      # User interface
-python test/test_exercise.py viz     # Visualizations
-python test/test_exercise.py data    # Reference data
+2. Install dependencies:
+pip install pandas matplotlib pytest
 
-Using the UI
+3. Run the application:
+python main.py
 
-Select an activity from the dropdown
-Enter duration in minutes
-Calculate calories by clicking the button
-Save the exercise to log it
-View trends with the "Show Exercise Trends" button
 
-Keyboard Navigation
+## Usage
 
-Tab: Move between fields
-Enter: Move to next field or activate buttons
-Activity field → Duration → Calculate → Save
+### First-time Setup
+
+1. Launch the application by running `main.py`
+2. Register a new account from the login screen
+3. Log in with your credentials
+
+### Main Dashboard
+
+- Enter daily calorie intake, calories burned, and your calorie goal
+- Navigate to more detailed tracking using the buttons at the bottom
+
+### Exercise Tracking
+
+- Select an activity from the dropdown
+- Enter the duration in minutes
+- Calculate and save the exercise to your log
+- View visualizations of your exercise activity
+
+### Nutrition Tracking
+
+- Enter food items and their respective quantities
+- View your daily intake summary
+- Analyze your nutritional trends
+
+Have fun navigating our App!
